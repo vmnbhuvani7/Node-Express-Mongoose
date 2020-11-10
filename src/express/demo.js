@@ -13,14 +13,17 @@ app.get("/about", (req, res) => {
     res.status(200).write('<h1>This is about page</h1>') // send multiple value
     res.send()
     // res.status(200).send('<h2>This is about page</h2>') //passed a html value
+
     // res.status(200).send({
     //     id: 1,
     //     name: "vaman"
     // }) //passed a object value
+
     // res.status(200).send([{
     //     id: 1,
     //     name: "vaman"
     // }]) //passed a array of object value
+    
     // res.status(200).json([{
     //     id: 1,
     //     name: "vaman"

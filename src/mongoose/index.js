@@ -1,4 +1,5 @@
 const mongoose = require('mongoose')
+const validator = require('validator')
 mongoose.connect("mongodb://localhost:27017/vmndata", { useUnifiedTopology: true, useNewUrlParser: true })
     .then(() => console.log("connection success"))
     .catch((err) => console.log(err))
@@ -9,11 +10,37 @@ mongoose.connect("mongodb://localhost:27017/vmndata", { useUnifiedTopology: true
 const playlistSchema = new mongoose.Schema({
     name: {
         type: String,
-        required: true
+        required: true,
+        lowercase: true, //convert lower case
+        uppercase: true, // convert upper case
+        trim: true, // remove space before and after
+        minlength: 2, // min 2 letter
+        minlength: [2, "minimum 2 letters"], // min 2 letter with msg print
+        maxlength: 30 // max length 
     },
-    ctype: String,
-    videos: Number,
+    ctype: {
+        type: String,
+        required: true,
+        lowercase: true,
+        enum: ["front end", "backend end"],
+    },
+    videos: {
+        type: Number,
+        validate(value) {
+            if (value < 0) {
+                throw new Error("Video count should not negative")
+            }
+        }
+    },
     author: String,
+    email: {
+        type: String,
+        validate(value) {
+            if (!validator.isEmail(value)) {
+                throw new Error("Email is Invalid")
+            }
+        }
+    },
     active: Boolean,
     date: {
         type: Date,
@@ -33,6 +60,7 @@ const createDocument = async () => {
             ctype: "Front End",
             videos: 110,
             author: "vaman",
+            email: "abc@gmail.com",
             active: true
         })
         const nodePlaylist = new Playlist({
@@ -40,12 +68,13 @@ const createDocument = async () => {
             ctype: "Backend End",
             videos: 6,
             author: "vaman",
+            email: "abc@gmail.co",
             active: true
         })
         //single record
         // const result = await reactPlaylist.save(); 
         //multiple record
-        const result = await Playlist.insertMany([reactPlaylist, nodePlaylist]); //single
+        const result = await Playlist.insertMany([reactPlaylist, nodePlaylist]);
         console.log("create data result", result);
     }
     catch (err) {
@@ -53,18 +82,20 @@ const createDocument = async () => {
     }
 }
 
-// createDocument()
+createDocument()
 
 const getDocument = async () => {
     try {
         const result = await Playlist
             // .find({ videos:1 }) //find videos
-            // in a number we used this sign adn String we use "in" and "nin"
             // .find({ videos: { $lt: 50 } }) //find videos lessthan 50
             // .find({ videos: { $lte: 50 } }) //find videos lessthan + equal 50
             // .find({ videos: { $gt: 50 } }) //find videos greter than 50
             // .find({ videos: { $gte: 50 } }) //find videos greter than + equal 50
+
+            // in a number we used this sign adn String we use "in" and "nin"
             // .find({ctype:{$in:["Backend End","Front End"]}}) //single + multiple also search 
+
             // .find({
             //     $or: [{ ctype: "Front End" },
             //     { videos: 6 }
@@ -121,4 +152,4 @@ const deleteDocument = async (_id) => {
         console.log(err);
     }
 }
-deleteDocument("5fa92906ac04e72804e64c94")
+// deleteDocument("5fa92906ac04e72804e64c94")
